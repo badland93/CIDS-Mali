@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Paramètres système | CIDS-Mali{% endblock %}
+{% block content %}
+<section class="page-header">
+  <p class="eyebrow">Espace directeur</p>
+  <h1>Paramètres système</h1>
+  <p>Gérez la durée de validité des cartes et vérifiez l’état des composants locaux.</p>
+</section>
+<section class="settings-layout">
+  <article class="panel auth-panel">
+    <div class="panel-head">
+      <p class="eyebrow">Émission</p>
+      <h2>Validité des cartes</h2>
+    </div>
+    <form method="post" class="form-stack">
+      {{ form.hidden_tag() }}
+      <div class="field-group">
+        {{ form.card_validity_days.label }}
+        {{ form.card_validity_days(min=30, max=730, step=1, inputmode='numeric') }}
+        {% for error in form.card_validity_days.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+        <small>Les nouvelles cartes et les réémissions utiliseront cette durée. Valeur autorisée : 30 à 730 jours.</small>
+      </div>
+      <button class="btn btn-primary" type="submit">Enregistrer les paramètres</button>
+    </form>
+  </article>
+  <article class="panel auth-panel">
+    <div class="panel-head">
+      <p class="eyebrow">État local</p>
+      <h2>Configuration</h2>
+    </div>
+    <dl class="student-detail-grid">
+      <div><dt>Identifiant émetteur</dt><dd>{{ settings.issuer_id }}</dd></div>
+      <div><dt>Base de données</dt><dd>{{ 'Disponible' if settings.database_ready else 'Introuvable' }}</dd></div>
+      <div><dt>Clé de chiffrement</dt><dd>{{ 'Disponible' if settings.aes_key_ready else 'Introuvable' }}</dd></div>
+      <div><dt>Clé privée d’émission</dt><dd>{{ 'Disponible' if settings.issuer_key_ready else 'Introuvable' }}</dd></div>
+      <div><dt>Cookies sécurisés</dt><dd>{{ 'Activés' if settings.secure_cookies else 'Désactivés pour le développement local' }}</dd></div>
+    </dl>
+  </article>
+</section>
+{% endblock %}

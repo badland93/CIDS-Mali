@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Connexion | CIDS-Mali{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-hero reveal-on-scroll">
+    <p class="eyebrow">Système d’identité sécurisée</p>
+    <h1>CIDS<br>Mali</h1>
+    <p>Une solution locale pensée pour les établissements, les surveillants et les enseignants.</p>
+  </div>
+
+  <div class="panel auth-panel reveal-on-scroll">
+    <div class="panel-head">
+      <span class="sr-only">Staff sign in</span>
+      <p class="eyebrow">Accès personnel</p>
+      <h2>Connexion du personnel</h2>
+    </div>
+
+    <form method="post" novalidate class="form-stack">
+      {{ form.hidden_tag() }}
+
+      <div class="field-group">
+        <label for="username">Nom d’utilisateur</label>
+        {{ form.username(id='username', autocomplete='username', placeholder='ex. director') }}
+      </div>
+
+      <div class="field-group">
+        <label for="password">Mot de passe</label>
+        {{ form.password(id='password', autocomplete='current-password', placeholder='••••••••') }}
+      </div>
+
+      {{ form.submit(class_='btn btn-primary btn-full') }}
+    </form>
+  </div>
+</section>
+{% endblock %}

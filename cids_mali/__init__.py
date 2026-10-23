@@ -1,0 +1,1 @@
+"""CIDS-Mali school identity card system."""

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; connect-src 'none'">
+  <title>Offline card verifier | CIDS-Mali</title>
+  <link rel="stylesheet" href="css/offline-verifier.css">
+</head>
+<body>
+  <header class="bar">CIDS <span>MALI</span> / OFFLINE VERIFIER</header>
+  <main>
+    <p>LOCAL VERIFICATION</p><h1>Check a student card</h1>
+    <p>Verification runs in this page. Public-key, AES-key, revocation and QR data stay on this device.</p>
+    <form id="verify-form">
+      <button id="scan-toggle" type="button">Open camera scanner</button>
+      <video id="camera" playsinline muted hidden></video>
+      <label for="qr">QR JSON</label><textarea id="qr" required spellcheck="false" placeholder='Paste the scanned QR JSON'></textarea>
+      <label for="public-key">Trusted issuer public key (.pem)</label><input id="public-key" type="file" accept=".pem,.pub,text/plain" required>
+      <label for="issuer-id">Expected issuer ID</label><input id="issuer-id" type="text" required autocomplete="off">
+      <label for="aes-key">School AES master key</label><input id="aes-key" type="file" required>
+      <label for="student-photo">Local normalized student photo (optional)</label><input id="student-photo" type="file" accept="image/png">
+      <label for="revocations">Revocation list (one student UUID per line, optional)</label><input id="revocations" type="file">
+      <label><input id="exam-mode" type="checkbox"> Enforce exam freshness window (one hour)</label>
+      <button type="submit">Verify locally</button><p class="status" id="status" role="status"></p>
+    </form>
+    <section id="result" class="result" hidden aria-live="polite"></section>
+  </main>
+  <script src="offline-verifier.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Émettre une carte | CIDS-Mali{% endblock %}
+{% block content %}
+<section class="page-header reveal-on-scroll">
+  <p class="eyebrow">Émission</p>
+  <h1>Nouvelle carte scolaire</h1>
+  <p>Les informations collectées sont sécurisées et prêtes à être vérifiées hors ligne.</p>
+</section>
+
+<section class="issue-shell reveal-on-scroll">
+  <div class="stepper" aria-label="Étapes de création de carte">
+    <div class="step is-active" data-step-index="0"><span>1</span><small>Élève</small></div>
+    <div class="step" data-step-index="1"><span>2</span><small>Photo</small></div>
+    <div class="step" data-step-index="2"><span>3</span><small>Consentement</small></div>
+    <div class="step" data-step-index="3"><span>4</span><small>Aperçu</small></div>
+  </div>
+
+  <div class="progress-wrap" aria-label="Progression du formulaire">
+    <div class="progress-bar" id="issue-progress-bar"></div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="issue-form form-stack" id="issue-form">
+    {{ form.hidden_tag() }}
+
+    <div class="issue-layout">
+      <div class="issue-form-panel panel">
+        <div class="form-step is-active" data-step-index="0">
+          <div class="field-grid two-columns">
+            <div class="field-group">
+              <label for="first_name">Prénom</label>
+              {{ form.first_name(id='first_name', autocomplete='given-name') }}
+            </div>
+            <div class="field-group">
+              <label for="last_name">Nom</label>
+              {{ form.last_name(id='last_name', autocomplete='family-name') }}
+            </div>
+            <div class="field-group">
+              <label for="date_of_birth">Date de naissance</label>
+              {{ form.date_of_birth(type='date', id='date_of_birth') }}
+            </div>
+            <div class="field-group">
+              <label for="student_class">Classe</label>
+              {{ form.student_class(id='student_class', placeholder='ex. 9e année') }}
+            </div>
+            <div class="field-group full-width">
+              <label for="school">Établissement</label>
+              {{ form.school(id='school', autocomplete='organization', placeholder='Nom de l’école') }}
+            </div>
+            <div class="field-group full-width">
+              {{ form.exam_category.label }}
+              {{ form.exam_category(id='exam_category') }}
+            </div>
+            <div class="field-group">
+              <label for="nina">NINA</label>
+              {{ form.nina(id='nina', placeholder='Optionnel') }}
+            </div>
+            <div class="field-group">
+              <label for="guardian_name">Nom du tuteur</label>
+              {{ form.guardian_name(id='guardian_name', autocomplete='name') }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-step" data-step-index="1">
+          <div class="photo-upload-area" id="photo-dropzone" tabindex="0" aria-label="Téléverser une photo d’élève">
+            <input type="file" id="photo" name="photo" accept="image/jpeg,image/png" aria-label="Ajouter une photo de l’élève">
+            <div class="upload-placeholder">
+              <span class="upload-icon" aria-hidden="true">📷</span>
+              <p>Déposez la photo ici ou cliquez pour choisir</p>
+              <small>Format JPG ou PNG · Max. 5 Mo</small>
+            </div>
+            <img id="photo-preview" alt="Aperçu de la photo de l’élève" hidden>
+          </div>
+        </div>
+
+        <div class="form-step" data-step-index="2">
+          <div class="field-grid two-columns">
+            <div class="field-group full-width">
+              <label for="consent_date">Date du consentement</label>
+              {{ form.consent_date(type='date', id='consent_date') }}
+            </div>
+            <div class="field-group full-width consent-box">
+              {{ form.consent_given(id='consent_given') }}
+              <label for="consent_given">J’atteste que le consentement parental a bien été recueilli.</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-step" data-step-index="3">
+          <div class="preview-summary">
+            <p>Vérifiez avant d’émettre la carte.</p>
+            <ul>
+              <li>Nom complet de l’élève</li>
+              <li>Classe, école et dates</li>
+              <li>Consentement parental validé</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-secondary btn-back" type="button" hidden>Retour</button>
+            <button class="btn btn-secondary btn-back" type="button" hidden><i data-lucide="arrow-left" aria-hidden="true"></i><span>Retour</span></button>
+            <button class="btn btn-primary btn-next" type="button"><span>Suivant</span><i data-lucide="arrow-right" aria-hidden="true"></i></button>
+          {{ form.submit(class_='btn btn-primary btn-submit', id='issue-submit') }}
+        </div>
+      </div>
+
+      <aside class="card-preview-panel panel" aria-live="polite">
+        <div class="card-preview" id="student-card-preview">
+          <div class="card-preview__top">
+            <span class="school-chip">Établissement</span>
+            <span class="card-validity">Valide</span>
+          </div>
+          <div class="card-preview__identity">
+            <div class="card-preview__photo-wrap">
+              <img id="preview-photo" alt="Photo de l’élève" src="" hidden>
+            </div>
+            <div>
+              <p class="card-preview__label">Élève</p>
+              <h3 id="preview-name">Nom complet</h3>
+              <p id="preview-class">Classe</p>
+              <p id="preview-category">DEF</p>
+              <p id="preview-school">École</p>
+            </div>
+          </div>
+          <div class="card-preview__meta">
+            <div><span>Émis</span><strong id="preview-issued">—</strong></div>
+            <div><span>Expire</span><strong id="preview-expires">—</strong></div>
+          </div>
+          <div class="card-preview__qr" aria-label="Prévisualisation du QR code">
+            <div class="qr-box">QR</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </form>
+</section>
+{% endblock %}

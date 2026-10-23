@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Carte émise | CIDS-Mali{% endblock %}
+{% block content %}
+<section class="page-header"><p class="eyebrow">Émission terminée</p><h1>Carte créée</h1><p>{{ student_data.first_name }} {{ student_data.last_name }} · {{ student_data.exam_category }}</p><p>Numéro de carte : <code>{{ payload.student_id }}</code></p></section>
+<div class="preview-actions"><a class="btn btn-primary" href="{{ url_for('card_pdf', student_id=payload.student_id) }}">Télécharger le PDF imprimable</a><a class="btn btn-secondary" href="{{ url_for('card_png', student_id=payload.student_id) }}">Télécharger la carte PNG</a><a class="btn btn-ghost" href="{{ url_for('issue') }}">Émettre une autre carte</a></div>
+{% endblock %}

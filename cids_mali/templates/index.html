@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Accueil | CIDS-Mali{% endblock %}
+{% block content %}
+<section class="hero-section">
+  <div class="hero-copy reveal-on-scroll">
+    <p class="eyebrow">Carte d’identité scolaire sécurisée</p>
+    <h1>CIDS-Mali — Carte d’Identité Scolaire Sécurisée</h1>
+    <p class="hero-subtitle">Sécuriser l’identité de chaque élève, protéger l’avenir du Mali</p>
+    <p class="motto">Un Peuple – Un But – Une Foi</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ url_for('issue') }}"><i data-lucide="id-card" aria-hidden="true"></i><span>Émettre une carte</span></a>
+      <a class="btn btn-secondary" href="{{ url_for('verify_online') }}"><i data-lucide="scan-line" aria-hidden="true"></i><span>Vérifier une carte</span></a>
+    </div>
+    <div class="hero-meta">
+      <span>Hors ligne</span>
+      <span>Renforcé</span>
+      <span>Maintenu localement</span>
+    </div>
+  </div>
+
+  <div class="hero-art reveal-on-scroll" aria-hidden="true">
+    <img src="{{ url_for('static', filename='img/hero-mali.svg') }}" alt="Illustration de la culture malienne avec un oiseau, le soleil et la mosquée de Djenné">
+  </div>
+</section>
+
+<section class="stats-strip" aria-label="Statistiques du système">
+  <div class="stat-item">
+    <strong class="stat-number" data-target="{{ kpis.total_candidates }}">0</strong>
+    <span>Candidats enregistrés</span>
+  </div>
+  <div class="stat-item">
+    <strong class="stat-number" data-target="{{ kpis.registered_institutions }}">0</strong>
+    <span>Établissements</span>
+  </div>
+  <div class="stat-item">
+    <strong class="stat-number" data-target="{{ kpis.total_verifications }}">0</strong>
+    <span>Vérifications</span>
+  </div>
+</section>
+
+<section class="features-section">
+  <div class="section-heading reveal-on-scroll">
+    <p class="eyebrow">Protection numérique</p>
+    <h2>Une identité scolaire solide, facile à vérifier</h2>
+  </div>
+  <div class="feature-grid">
+    <article class="feature-card reveal-on-scroll">
+      <span class="feature-icon" aria-hidden="true"><i data-lucide="key-round"></i></span>
+      <h3>Signature RSA-2048</h3>
+      <p>Chaque carte est signée pour prouver son origine et détecter toute falsification.</p>
+    </article>
+    <article class="feature-card reveal-on-scroll">
+      <span class="feature-icon" aria-hidden="true"><i data-lucide="shield-check"></i></span>
+      <h3>Chiffrement AES-256</h3>
+      <p>Les données sensibles de l’élève restent chiffrées avant stockage et lecture locale.</p>
+    </article>
+    <article class="feature-card reveal-on-scroll">
+      <span class="feature-icon" aria-hidden="true"><i data-lucide="wifi-off"></i></span>
+      <h3>Vérification hors ligne</h3>
+      <p>Pas besoin d’internet pour contrôler la validité d’une carte lors d’un examen ou d’un contrôle.</p>
+    </article>
+    <article class="feature-card reveal-on-scroll">
+      <span class="feature-icon" aria-hidden="true"><i data-lucide="scale"></i></span>
+      <h3>Conforme APDP</h3>
+      <p>Les accès sont limités, les données protégées et les actions auditées localement.</p>
+    </article>
+  </div>
+</section>
+
+<section class="timeline-section reveal-on-scroll">
+  <div class="section-heading">
+    <p class="eyebrow">Comment ça marche</p>
+    <h2>Du dossier à la vérification</h2>
+  </div>
+  <div class="timeline">
+    <div class="timeline-step">
+      <span class="step-number">1</span>
+      <h3>Saisie</h3>
+      <p>Informations élève, photo et consentement parental.</p>
+    </div>
+    <div class="timeline-step">
+      <span class="step-number">2</span>
+      <h3>Chiffrement</h3>
+      <p>Les données sont protégées avant stockage local.</p>
+    </div>
+    <div class="timeline-step">
+      <span class="step-number">3</span>
+      <h3>Signature</h3>
+      <p>Le QR code reçoit une signature numérique fiable.</p>
+    </div>
+    <div class="timeline-step">
+      <span class="step-number">4</span>
+      <h3>Vérification</h3>
+      <p>Le contrôle valide l’empreinte, la date et la révocation.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

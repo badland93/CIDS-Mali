@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord | CIDS-Mali{% endblock %}
+{% block body_class %}dashboard-body{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+<div class="dashboard-shell reveal-on-scroll">
+  <aside class="sidebar panel" aria-label="Navigation d’administration">
+    <div class="sidebar__brand">
+      <span class="brand-mark">CIDS</span>
+      <span class="brand-name">Mali</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="{% if request.endpoint == 'admin' %}is-active{% endif %}" href="{{ url_for('admin') }}"><i data-lucide="layout-dashboard" aria-hidden="true"></i><span>Vue d’ensemble</span></a>
+      <a href="{{ url_for('admin_students') }}"><i data-lucide="users" aria-hidden="true"></i><span>Candidats et cartes</span></a>
+      <a href="{{ url_for('issue') }}"><i data-lucide="id-card" aria-hidden="true"></i><span>Émission</span></a>
+      <a href="{{ url_for('verify_online') }}"><i data-lucide="scan-line" aria-hidden="true"></i><span>Vérification</span></a>
+      <a href="{{ url_for('offline_verifier') }}"><i data-lucide="scan" aria-hidden="true"></i><span>Hors ligne</span></a>
+      {% if current_user.role == 'director' %}
+      <a href="{{ url_for('director_admins') }}"><i data-lucide="user-round-cog" aria-hidden="true"></i><span>Comptes utilisateurs</span></a>
+      <a href="{{ url_for('director_settings') }}"><i data-lucide="settings-2" aria-hidden="true"></i><span>Paramètres système</span></a>
+      {% endif %}
+    </nav>
+    <div class="sidebar-card">
+      <p class="eyebrow">Sécurité</p>
+      <strong>Protection des clés</strong>
+      <small>Accès réservé au Directeur</small>
+    </div>
+  </aside>
+
+  <main class="dashboard-main" data-stats-url="{{ url_for('admin_api_stats') }}">
+    <header class="dashboard-topbar panel">
+      <div>
+        <p class="eyebrow">Système national · Direction</p>
+        <h1>Vue d’ensemble</h1>
+      </div>
+      <div class="dashboard-tools">
+        <span class="filter-pill"><span>Année scolaire</span><strong>2026–2027</strong></span>
+        <button type="button" class="theme-toggle theme-toggle--panel" aria-label="Basculer le thème sombre">
+          <span class="theme-toggle__icon" aria-hidden="true">☀️</span>
+        </button>
+        <div class="user-menu">
+          <span>{{ 'Directeur' if current_user.role == 'director' else 'Admin' }}</span>
+          <small>{{ current_user.username }}</small>
+        </div>
+      </div>
+    </header>
+
+    <section class="kpi-grid" id="kpi-grid" aria-live="polite">
+      <article class="kpi-card panel skeleton-card">
+        <span class="kpi-icon"><i data-lucide="users" aria-hidden="true"></i></span>
+        <span class="kpi-label">Candidats</span>
+        <strong>—</strong>
+      </article>
+      <article class="kpi-card panel skeleton-card">
+        <span class="kpi-icon"><i data-lucide="id-card" aria-hidden="true"></i></span>
+        <span class="kpi-label">Cartes émises</span>
+        <strong>—</strong>
+      </article>
+      <article class="kpi-card panel skeleton-card">
+        <span class="kpi-icon"><i data-lucide="badge-check" aria-hidden="true"></i></span>
+        <span class="kpi-label">Cartes actives</span>
+        <strong>—</strong>
+      </article>
+      <article class="kpi-card panel skeleton-card">
+        <span class="kpi-icon"><i data-lucide="badge-alert" aria-hidden="true"></i></span>
+        <span class="kpi-label">Cartes expirées</span>
+        <strong>—</strong>
+      </article>
+      <article class="kpi-card panel skeleton-card">
+        <span class="kpi-icon"><i data-lucide="scan-line" aria-hidden="true"></i></span>
+        <span class="kpi-label">Vérifications</span>
+        <strong>—</strong>
+      </article>
+      <article class="kpi-card panel skeleton-card">
+        <span class="kpi-icon"><i data-lucide="school" aria-hidden="true"></i></span>
+        <span class="kpi-label">Établissements</span>
+        <strong>—</strong>
+      </article>
+    </section>
+
+    <section class="report-section" aria-labelledby="exam-category-heading">
+      <div class="section-heading">
+        <p class="eyebrow">Suivi des examens</p>
+        <h2 id="exam-category-heading">Catégories d’examen</h2>
+      </div>
+      <div class="exam-category-grid">
+        {% for category in category_stats %}
+        <article class="panel exam-category-card">
+          <div class="exam-category-title"><span>{{ category.code }}</span><small>{{ category.name }}</small></div>
+          <dl class="exam-category-metrics">
+            <div><dt>Candidats</dt><dd>{{ category.candidates }}</dd></div>
+            <div><dt>Cartes émises</dt><dd>{{ category.cards_issued }}</dd></div>
+            <div><dt>Actives</dt><dd>{{ category.active_cards }}</dd></div>
+            <div><dt>Expirées</dt><dd>{{ category.expired_cards }}</dd></div>
+            <div><dt>Vérifications</dt><dd>{{ category.verification_count }}</dd></div>
+          </dl>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="chart-grid">
+      <article class="panel chart-panel chart-panel--wide">
+        <div class="panel-header">
+          <h2>Émissions par mois</h2>
+        </div>
+        <canvas id="issued-by-month" aria-label="Graphique des cartes émises par mois"></canvas>
+      </article>
+
+      <article class="panel chart-panel">
+        <div class="panel-header">
+          <h2>État des cartes</h2>
+        </div>
+        <canvas id="status-donut" aria-label="Répartition des états des cartes"></canvas>
+      </article>
+
+      <article class="panel chart-panel">
+        <div class="panel-header">
+          <h2>Par classe</h2>
+        </div>
+        <canvas id="by-class" aria-label="Cartes par classe"></canvas>
+      </article>
+
+      <article class="panel chart-panel chart-panel--wide">
+        <div class="panel-header">
+          <h2>Vérifications</h2>
+        </div>
+        <canvas id="verification-stack" aria-label="Résultats de vérification par jour"></canvas>
+      </article>
+
+      <article class="panel chart-panel">
+        <div class="panel-header">
+          <h2>Taux de couverture</h2>
+        </div>
+        <div class="gauge-wrap">
+          <div class="gauge-ring" data-rate="{{ stats.coverage_rate }}">
+            <div class="gauge-ring__inner">{{ stats.coverage_rate }}%</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel chart-panel">
+        <div class="panel-header">
+          <h2>Motifs de refus</h2>
+        </div>
+        <canvas id="rejection-bars" aria-label="Motifs de refus les plus fréquents"></canvas>
+      </article>
+    </section>
+
+    <section class="panel table-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Situation des élèves</p>
+          <h2>État des cartes</h2>
+        </div>
+        <div class="row-actions">
+          <a class="btn btn-secondary btn-small" href="{{ url_for('admin_students') }}">Voir la liste</a>
+          <a class="btn btn-ghost btn-small" href="{{ url_for('admin_students_export') }}">Exporter CSV</a>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Élève</th>
+              <th>Classe</th>
+              <th>Examen</th>
+              <th>Établissement</th>
+              <th>Échéance</th>
+              <th>Statut</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="students-table-body">
+            {% for student in students %}
+            <tr>
+              <td>{{ student.first_name }} {{ student.last_name }}</td>
+              <td>{{ student['class'] }}</td>
+              <td>{{ student.exam_category }}</td>
+              <td>{{ student.school }}</td>
+              <td>{{ student.expires_display }}</td>
+              <td><span class="status-badge {{ student.status_class }}">{{ student.status_label }}</span></td>
+              <td><a class="btn btn-ghost btn-small" href="{{ url_for('admin_student_detail', student_id=student.student_id) }}">Voir</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7">Aucun élève enregistré.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="activity-grid">
+      <article class="panel">
+        <div class="panel-header">
+          <h2>Activité récente</h2>
+        </div>
+        <ul class="activity-list" id="activity-list"></ul>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <h2>Alertes</h2>
+        </div>
+        <ul class="alert-list" id="alert-list"></ul>
+      </article>
+    </section>
+
+    <section class="panel table-panel" aria-labelledby="admin-issuance-heading">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Responsabilité</p>
+          <h2 id="admin-issuance-heading">Cartes émises par administrateur</h2>
+        </div>
+        <a class="btn btn-secondary btn-small" href="{{ url_for('admin_category_report_export') }}">Exporter le rapport</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Administrateur</th><th>Cartes émises</th></tr></thead>
+          <tbody>
+            {% for item in admin_issue_counts %}
+            <tr><td>{{ item.username }}</td><td>{{ item.cards_issued }}</td></tr>
+            {% else %}
+            <tr><td colspan="2">Aucune émission enregistrée.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/chart.umd.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
+{% endblock %}

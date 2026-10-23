@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CIDS-Mali : carte d'identité scolaire sécurisée pour les établissements maliens.">
+  <title>{% block title %}CIDS-Mali{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <div class="site-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="{{ url_for('index') if current_user.is_authenticated else url_for('login') }}" aria-label="Accueil CIDS-Mali">
+          <span class="brand-mark">CIDS</span>
+          <span class="brand-name">Mali</span>
+        </a>
+
+        {% if current_user.is_authenticated %}
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+          <i data-lucide="menu" aria-hidden="true"></i><span>Menu</span>
+        </button>
+        <nav id="main-nav" class="main-nav" aria-label="Navigation principale">
+          {% if current_user.role == 'director' %}
+          <a class="nav-link {% if request.endpoint == 'index' %}is-active{% endif %}" {% if request.endpoint == 'index' %}aria-current="page"{% endif %} href="{{ url_for('index') }}"><i data-lucide="house" aria-hidden="true"></i><span>Accueil</span></a>
+          {% endif %}
+          {% if current_user.role in ('director', 'admin') %}
+          <a class="nav-link {% if request.endpoint == 'issue' %}is-active{% endif %}" {% if request.endpoint == 'issue' %}aria-current="page"{% endif %} href="{{ url_for('issue') }}"><i data-lucide="id-card" aria-hidden="true"></i><span>Émettre</span></a>
+          {% endif %}
+          <a class="nav-link {% if request.endpoint == 'verify_online' %}is-active{% endif %}" {% if request.endpoint == 'verify_online' %}aria-current="page"{% endif %} href="{{ url_for('verify_online') }}"><i data-lucide="scan-line" aria-hidden="true"></i><span>Vérifier</span></a>
+          <a class="nav-link {% if request.endpoint == 'offline_verifier' %}is-active{% endif %}" {% if request.endpoint == 'offline_verifier' %}aria-current="page"{% endif %} href="{{ url_for('offline_verifier') }}"><i data-lucide="scan" aria-hidden="true"></i><span>Vérification hors ligne</span></a>
+          {% if current_user.role == 'admin' %}
+          <a class="nav-link {% if request.endpoint in ('admin_students', 'admin_student_detail', 'admin_student_edit') %}is-active{% endif %}" {% if request.endpoint in ('admin_students', 'admin_student_detail', 'admin_student_edit') %}aria-current="page"{% endif %} href="{{ url_for('admin_students') }}"><i data-lucide="users" aria-hidden="true"></i><span>Candidats et cartes</span></a>
+          {% endif %}
+          {% if current_user.role == 'director' %}
+          <a class="nav-link {% if request.endpoint in ('admin', 'admin_api_stats') %}is-active{% endif %}" {% if request.endpoint in ('admin', 'admin_api_stats') %}aria-current="page"{% endif %} href="{{ url_for('admin') }}"><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i><span>Rapports</span></a>
+          <a class="nav-link {% if request.endpoint in ('admin_students', 'admin_student_detail', 'admin_student_edit') %}is-active{% endif %}" {% if request.endpoint in ('admin_students', 'admin_student_detail', 'admin_student_edit') %}aria-current="page"{% endif %} href="{{ url_for('admin_students') }}"><i data-lucide="users" aria-hidden="true"></i><span>Candidats et cartes</span></a>
+          {% endif %}
+          {% if current_user.role == 'director' %}
+          <a class="nav-link {% if request.endpoint == 'director_admins' %}is-active{% endif %}" {% if request.endpoint == 'director_admins' %}aria-current="page"{% endif %} href="{{ url_for('director_admins') }}"><i data-lucide="user-round-cog" aria-hidden="true"></i><span>Comptes utilisateurs</span></a>
+          <a class="nav-link {% if request.endpoint == 'director_settings' %}is-active{% endif %}" {% if request.endpoint == 'director_settings' %}aria-current="page"{% endif %} href="{{ url_for('director_settings') }}"><i data-lucide="settings-2" aria-hidden="true"></i><span>Paramètres système</span></a>
+          {% endif %}
+        </nav>
+        <div class="header-tools">
+          <button type="button" class="theme-toggle" aria-label="Basculer le thème sombre">
+            <i class="theme-toggle__icon" data-lucide="sun" aria-hidden="true"></i>
+          </button>
+          <form method="post" action="{{ url_for('logout') }}" class="logout-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-ghost btn-small" type="submit"><i data-lucide="log-out" aria-hidden="true"></i><span>Déconnexion</span></button>
+          </form>
+        </div>
+        {% else %}
+        <div class="header-tools header-tools--login">
+          <button type="button" class="theme-toggle" aria-label="Basculer le thème sombre">
+            <i class="theme-toggle__icon" data-lucide="sun" aria-hidden="true"></i>
+          </button>
+          <a class="btn btn-primary btn-small" href="{{ url_for('login') }}"><i data-lucide="log-in" aria-hidden="true"></i><span>Connexion</span></a>
+        </div>
+        {% endif %}
+      </div>
+    </header>
+
+    <main class="page-shell">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="notice notice-{{ category }}" role="status">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-band" aria-hidden="true"></div>
+      <div class="footer-inner">
+        <p>CIDS-Mali</p>
+        <p>© 2026 CIDS-Mali · Système National de Carte d’Identité Scolaire Sécurisée</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='vendor/lucide.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

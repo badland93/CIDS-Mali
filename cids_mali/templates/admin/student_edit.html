@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Modifier le candidat | CIDS-Mali{% endblock %}
+{% block body_class %}dashboard-body{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+<section class="page-header">
+  <p class="eyebrow">Gestion des cartes</p>
+  <h1>Modifier le candidat</h1>
+  <p>La modification révoque l’ancienne carte et en génère une nouvelle avec un nouveau numéro et un QR signé.</p>
+</section>
+<section class="panel auth-panel">
+  <form method="post" enctype="multipart/form-data" class="form-stack">
+    {{ form.hidden_tag() }}
+    <div class="field-grid two-columns">
+      {% for field in [form.first_name, form.last_name, form.date_of_birth, form.student_class, form.school, form.exam_category, form.nina, form.guardian_name, form.consent_date] %}
+      <div class="field-group">
+        {{ field.label }}
+        {{ field(type='date' if field.name in ['date_of_birth', 'consent_date'] else 'text') }}
+        {% for error in field.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      </div>
+      {% endfor %}
+      <div class="field-group full-width">
+        {{ form.photo.label }}
+        {{ form.photo(accept='image/jpeg,image/png') }}
+        <small>Sans nouvelle photo, la photo actuelle sera conservée.</small>
+        {% for error in form.photo.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      </div>
+      <div class="field-group full-width consent-box">
+        {{ form.consent_given(id='consent_given') }}
+        <label for="consent_given">Je confirme que le consentement du tuteur est toujours valide.</label>
+        {% for error in form.consent_given.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      </div>
+    </div>
+    <div class="row-actions">
+      <button class="btn btn-primary" type="submit">Enregistrer et réémettre</button>
+      <a class="btn btn-ghost" href="{{ url_for('admin_student_detail', student_id=student.student_id) }}">Annuler</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

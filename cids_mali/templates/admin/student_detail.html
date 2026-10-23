@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Dossier élève | CIDS-Mali{% endblock %}
+{% block body_class %}dashboard-body{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+<section class="page-header">
+  <p class="eyebrow">Dossier élève</p>
+  <h1>{{ student.first_name }} {{ student.last_name }}</h1>
+  <p><span class="status-badge {{ student.status_class }}">{{ student.status_label }}</span></p>
+</section>
+<section class="panel auth-panel">
+  <div class="panel-head">
+    <h2>Informations scolaires</h2>
+  </div>
+  <dl class="student-detail-grid">
+    <div><dt>Classe</dt><dd>{{ student['class'] }}</dd></div>
+    <div><dt>Établissement</dt><dd>{{ student.school }}</dd></div>
+    <div><dt>Date de naissance</dt><dd>{{ student.date_of_birth }}</dd></div>
+    <div><dt>NINA</dt><dd>{{ student.nina or 'Non renseigné' }}</dd></div>
+    <div><dt>Émise le</dt><dd>{{ student.issued_at }}</dd></div>
+    <div><dt>Expire le</dt><dd>{{ student.expires_display }}</dd></div>
+    <div><dt>Identifiant</dt><dd><code>{{ student.student_id }}</code></dd></div>
+  </dl>
+  <div class="row-actions">
+    <a class="btn btn-secondary" href="{{ url_for('admin_students') }}"><i data-lucide="arrow-left" aria-hidden="true"></i><span>Retour à la liste</span></a>
+    {% if student.status != 'revoked' %}
+    <a class="btn btn-primary" href="{{ url_for('admin_student_edit', student_id=student.student_id) }}"><i data-lucide="pencil" aria-hidden="true"></i><span>Modifier le candidat</span></a>
+    {% endif %}
+    {% if student.pdf_available and student.status != 'revoked' %}
+    <a class="btn btn-ghost" href="{{ url_for('card_pdf', student_id=student.student_id) }}"><i data-lucide="file-down" aria-hidden="true"></i><span>Télécharger la carte PDF</span></a>
+    {% endif %}
+  </div>
+  {% if current_user.role in ('director', 'admin') %}
+  <div class="student-record-actions">
+    {% if student.status != 'revoked' %}
+    <form method="post" action="{{ url_for('admin_student_revoke', student_id=student.student_id) }}" class="student-revoke-form" data-confirm="Révoquer cette carte ? Les vérificateurs à jour la refuseront.">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="field-group"><span>Motif de révocation</span><input name="reason" maxlength="240" placeholder="Motif (facultatif)"></label>
+      <button class="btn btn-secondary" type="submit"><i data-lucide="ban" aria-hidden="true"></i><span>Révoquer la carte</span></button>
+    </form>
+    {% endif %}
+    <form method="post" action="{{ url_for('admin_student_erase', student_id=student.student_id) }}" data-confirm="Supprimer définitivement les données et fichiers de ce candidat ?">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-danger" type="submit"><i data-lucide="trash-2" aria-hidden="true"></i><span>Supprimer les données du candidat</span></button>
+    </form>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Comptes utilisateurs | CIDS-Mali{% endblock %}
+{% block content %}
+<section class="page-header">
+  <p class="eyebrow">Espace directeur</p>
+  <h1>Accès des utilisateurs</h1>
+  <p>Créez les comptes Administrateur et Secrétaire, puis contrôlez leur accès à l’application.</p>
+</section>
+
+<section class="panel auth-panel" aria-labelledby="create-admin-heading">
+  <div class="panel-head">
+    <p class="eyebrow">Nouveau compte</p>
+    <h2 id="create-admin-heading">Créer un compte</h2>
+  </div>
+  <form method="post" class="form-stack" autocomplete="off">
+    {{ form.hidden_tag() }}
+    <div class="field-grid two-columns">
+      <div class="field-group">
+        {{ form.username.label }}
+        {{ form.username(autocomplete='off') }}
+        {% for error in form.username.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      </div>
+      <div class="field-group">
+        {{ form.password.label }}
+        {{ form.password(autocomplete='new-password') }}
+        {% for error in form.password.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      </div>
+      <div class="field-group">
+        {{ form.role.label }}
+        {{ form.role() }}
+      </div>
+    </div>
+    <div><button class="btn btn-primary" type="submit" name="action" value="create_admin"><i data-lucide="user-plus" aria-hidden="true"></i><span>Créer le compte</span></button></div>
+  </form>
+</section>
+
+<section class="panel table-panel" aria-labelledby="admins-heading">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Contrôle d’accès</p>
+      <h2 id="admins-heading">Comptes gérés</h2>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Nom d’utilisateur</th><th>Rôle</th><th>Accès</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for admin in managed_users %}
+        <tr>
+          <td>{{ admin.username }}</td>
+          <td>{{ 'Administrateur' if admin.role == 'admin' else 'Secrétaire' }}</td>
+          <td><span class="status-badge {{ 'success' if admin.is_active else 'danger' }}">{{ 'Actif' if admin.is_active else 'Désactivé' }}</span></td>
+          <td>
+            <div class="row-actions">
+              <form method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="user_id" value="{{ admin.id }}">
+                <button class="btn btn-secondary btn-small" type="submit" name="action" value="{{ 'disable_admin' if admin.is_active else 'enable_admin' }}"><i data-lucide="{{ 'user-round-x' if admin.is_active else 'user-round-check' }}" aria-hidden="true"></i><span>{{ 'Désactiver' if admin.is_active else 'Réactiver' }}</span></button>
+              </form>
+              <form method="post" data-confirm="Supprimer définitivement ce compte administrateur ?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="user_id" value="{{ admin.id }}">
+                <button class="btn btn-danger btn-small" type="submit" name="action" value="delete_admin"><i data-lucide="user-round-minus" aria-hidden="true"></i><span>Supprimer</span></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4">Aucun compte utilisateur supplémentaire.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

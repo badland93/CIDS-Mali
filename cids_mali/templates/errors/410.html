@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Carte révoquée | CIDS-Mali{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-hero">
+    <p class="eyebrow">Carte retirée</p>
+    <h1>Document indisponible</h1>
+    <p>Cette carte a été révoquée ou remplacée. Son fichier ne peut plus être téléchargé.</p>
+  </div>
+  <div class="panel auth-panel">
+    <div class="panel-head">
+      <p class="eyebrow">Erreur 410</p>
+      <h2>Utilisez la carte en vigueur</h2>
+      <p>Consultez le dossier du candidat pour retrouver son numéro de carte actuel.</p>
+    </div>
+    <a class="btn btn-primary btn-full" href="{{ url_for('admin_students') }}">Retour aux candidats</a>
+  </div>
+</section>
+{% endblock %}

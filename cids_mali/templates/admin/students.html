@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Élèves | CIDS-Mali{% endblock %}
+{% block body_class %}dashboard-body{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+<div class="dashboard-shell reveal-on-scroll">
+  <aside class="sidebar panel" aria-label="Navigation d’administration">
+    <div class="sidebar__brand">
+      <span class="brand-mark">CIDS</span>
+      <span class="brand-name">Mali</span>
+    </div>
+    <nav class="sidebar-nav">
+      {% if current_user.role == 'director' %}
+      <a class="{% if request.endpoint == 'admin' %}is-active{% endif %}" href="{{ url_for('admin') }}"><i data-lucide="layout-dashboard" aria-hidden="true"></i><span>Rapports</span></a>
+      {% endif %}
+      <a class="{% if request.endpoint in ('admin_students', 'admin_student_detail', 'admin_student_edit') %}is-active{% endif %}" href="{{ url_for('admin_students') }}"><i data-lucide="users" aria-hidden="true"></i><span>Candidats et cartes</span></a>
+      <a href="{{ url_for('issue') }}"><i data-lucide="id-card" aria-hidden="true"></i><span>Émission</span></a>
+      <a href="{{ url_for('verify_online') }}"><i data-lucide="scan-line" aria-hidden="true"></i><span>Vérification</span></a>
+      {% if current_user.role == 'director' %}
+      <a href="{{ url_for('director_admins') }}"><i data-lucide="user-round-cog" aria-hidden="true"></i><span>Comptes utilisateurs</span></a>
+      <a href="{{ url_for('director_settings') }}"><i data-lucide="settings-2" aria-hidden="true"></i><span>Paramètres système</span></a>
+      {% endif %}
+    </nav>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="dashboard-topbar panel">
+      <div>
+        <p class="eyebrow">Données</p>
+        <h1>Situation des élèves</h1>
+      </div>
+      <div class="dashboard-tools">
+        <a class="btn btn-secondary btn-small" href="{{ url_for('admin_students_export') }}">Exporter CSV</a>
+      </div>
+    </header>
+
+    <section class="panel table-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Liste</p>
+          <h2>Élèves et cartes</h2>
+        </div>
+        <form method="get" class="student-filters" role="search">
+          <label class="field-group"><span>Recherche</span><input type="search" name="q" value="{{ search_query }}" placeholder="Nom, établissement ou numéro" aria-label="Rechercher un candidat"></label>
+          <label class="field-group"><span>Examen</span>
+            <select name="category" aria-label="Filtrer par examen">
+              <option value="">Tous les examens</option>
+              {% for code, label in category_choices %}<option value="{{ code }}" {% if category_filter == code %}selected{% endif %}>{{ code }}</option>{% endfor %}
+            </select>
+          </label>
+          <label class="field-group"><span>Statut</span>
+            <select name="status" aria-label="Filtrer par statut">
+              <option value="">Tous les statuts</option>
+              {% for value, label in [('valid', 'Valide'), ('expired', 'Expirée'), ('revoked', 'Révoquée')] %}<option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+          </label>
+          <button class="btn btn-primary btn-small" type="submit">Filtrer</button>
+          {% if search_query or category_filter or status_filter %}<a class="btn btn-ghost btn-small" href="{{ url_for('admin_students') }}">Effacer</a>{% endif %}
+        </form>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th aria-sort="none"><button class="table-sort" type="button" data-sort-index="0">Élève <i data-lucide="arrow-up-down" aria-hidden="true"></i></button></th>
+              <th aria-sort="none"><button class="table-sort" type="button" data-sort-index="1">Classe <i data-lucide="arrow-up-down" aria-hidden="true"></i></button></th>
+              <th aria-sort="none"><button class="table-sort" type="button" data-sort-index="2">Examen <i data-lucide="arrow-up-down" aria-hidden="true"></i></button></th>
+              <th aria-sort="none"><button class="table-sort" type="button" data-sort-index="3">Statut <i data-lucide="arrow-up-down" aria-hidden="true"></i></button></th>
+              <th aria-sort="none"><button class="table-sort" type="button" data-sort-index="4">Échéance <i data-lucide="arrow-up-down" aria-hidden="true"></i></button></th>
+              <th aria-sort="none"><button class="table-sort" type="button" data-sort-index="5">Établissement <i data-lucide="arrow-up-down" aria-hidden="true"></i></button></th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="students-list-body">
+            {% for student in students %}
+            <tr data-class="{{ student['class'] }}">
+              <td>{{ student.first_name }} {{ student.last_name }}</td>
+              <td>{{ student['class'] }}</td>
+              <td>{{ student.exam_category }}</td>
+              <td><span class="status-badge {{ student.status_class }}">{{ student.status_label }}</span></td>
+              <td data-sort-value="{{ student.expires_at }}">{{ student.expires_display }}</td>
+              <td>{{ student.school }}</td>
+              <td><a class="btn btn-ghost btn-small" href="{{ url_for('admin_student_detail', student_id=student.student_id) }}">Voir</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7">Aucun candidat ne correspond aux filtres.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Accès refusé | CIDS-Mali{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-hero">
+    <p class="eyebrow">Accès protégé</p>
+    <h1>Zone réservée</h1>
+    <p>Cette action nécessite un rôle supérieur. La gestion des comptes administrateurs est réservée au Directeur.</p>
+  </div>
+  <div class="panel auth-panel">
+    <div class="panel-head">
+      <p class="eyebrow">Erreur 403</p>
+      <h2>Vous n’avez pas accès à cette page</h2>
+      <p>Vérifiez que vous êtes connecté avec le compte Directeur pour gérer les accès, ou retournez à votre espace.</p>
+    </div>
+    <a class="btn btn-primary btn-full" href="{{ url_for('index') }}">Retour à l’accueil</a>
+  </div>
+</section>
+{% endblock %}

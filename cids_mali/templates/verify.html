@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Vérification | CIDS-Mali{% endblock %}
+{% block content %}
+<section class="page-header reveal-on-scroll">
+  <p class="eyebrow">Vérification</p>
+  <h1>Contrôler une carte</h1>
+  <p>Recherchez par numéro de carte ou vérifiez le QR signé de façon locale.</p>
+</section>
+
+<section class="verify-shell reveal-on-scroll">
+  <form method="post" class="verify-form panel">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="field-group">
+      <label for="card_number">Numéro de carte</label>
+      <input type="text" id="card_number" name="card_number" value="{{ card_number }}" placeholder="UUID de la carte" autocomplete="off" spellcheck="false">
+    </div>
+    <p class="form-divider">Ou vérifiez le QR signé</p>
+
+    <div class="scan-zone" aria-label="Zone de scan du QR">
+      <div class="scan-line" aria-hidden="true"></div>
+      <p>Scannez ou collez le QR</p>
+      <label class="file-trigger" for="qr-upload"><i data-lucide="image-up" aria-hidden="true"></i><span>Importer un fichier</span></label>
+      <input type="file" id="qr-upload" accept="application/json,.json,.txt">
+      <button class="btn btn-secondary btn-small" type="button" id="start-qr-scan"><i data-lucide="camera" aria-hidden="true"></i><span>Ouvrir la caméra</span></button>
+      <video id="qr-camera" class="qr-camera" playsinline hidden aria-label="Aperçu caméra du code QR"></video>
+      <p id="qr-scan-status" class="scan-status" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="field-group">
+      <label for="qr_json">Payload QR</label>
+      <textarea id="qr_json" name="qr_json" rows="10" placeholder="Collez ici le JSON QR...">{{ qr_json }}</textarea>
+    </div>
+
+    <label class="checkbox-row" for="exam_mode">
+      <input type="checkbox" id="exam_mode" name="exam_mode" value="1">
+      Vérification de session d’examen
+    </label>
+
+    <button class="btn btn-primary btn-full" type="submit"><i data-lucide="scan-line" aria-hidden="true"></i><span>Vérifier</span></button>
+  </form>
+
+  {% if result %}
+  <section class="verification-result {% if result.valid %}is-valid{% else %}is-invalid{% endif %} panel reveal-on-scroll" role="status" aria-live="polite">
+    <div class="result-head">
+      <span class="result-badge {% if result.valid %}success{% else %}danger{% endif %}">
+        {{ result.status_label or ('Valide' if result.valid else result.reason) }}
+      </span>
+      <h2>{{ result.status_label or ('Carte valide' if result.valid else result.reason) }}</h2>
+    </div>
+
+    {% if result.student_data %}
+    <div class="student-summary">
+      <div class="avatar">{{ result.student_data.get('first_name', '')[:1] }}{{ result.student_data.get('last_name', '')[:1] }}</div>
+      <div>
+        <h3>{{ result.student_data.get('first_name', '') }} {{ result.student_data.get('last_name', '') }}</h3>
+        <p>{{ result.student_data.get('category_name', result.student_data.get('exam_category', 'DEF')) }} · {{ result.student_data.get('class', '') }} · {{ result.student_data.get('school', '') }}</p>
+      </div>
+    </div>
+    <dl class="result-details">
+      {% for key in ['exam_category', 'first_name', 'last_name', 'class', 'school', 'date_of_birth'] %}
+      <div>
+        <dt>{{ 'Examen' if key == 'exam_category' else key.replace('_', ' ')|title }}</dt>
+        <dd>{{ result.student_data.get('category_name', result.student_data.get(key, '')) if key == 'exam_category' else result.student_data.get(key, '') }}</dd>
+      </div>
+      {% endfor %}
+    </dl>
+    {% endif %}
+  </section>
+  {% endif %}
+</section>
+{% endblock %}
